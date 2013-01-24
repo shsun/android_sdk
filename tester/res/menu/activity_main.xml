@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_create"
+        android:title="@string/menu_create"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    <item android:id="@+id/menu_delete"
+        android:visible="false"
+        android:title="@string/menu_delete"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+</menu>

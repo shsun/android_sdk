@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollview"
+    android:layout_width="match_parent"
+    android:fillViewport="true"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <!-- Ads Name -->
+
+        <TextView
+            style="@style/param_key_txt"
+            android:text="@string/title_ad_name" />
+
+        <EditText
+            android:id="@+id/param_ads_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:singleLine="true" >
+        </EditText>
+
+        <!-- Ads Type Mraid/Ormma -->
+
+        <TextView
+            style="@style/param_key_txt"
+            android:text="@string/title_ad_type" />
+
+        <RadioGroup
+            android:id="@+id/radio_ads_type_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/radio_ads_type_mraid"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/ad_type_mraid" />
+
+            <RadioButton
+                android:id="@+id/radio_ads_type_ormma"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/ad_type_ormma" />
+        </RadioGroup>
+
+        <!-- Base URL -->
+
+        <TextView
+            style="@style/param_key_txt"
+            android:text="@string/title_ad_base_url" />
+
+        <EditText
+            android:id="@+id/param_ads_base_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textNoSuggestions"
+            android:ems="10"
+            android:text="@string/ad_default_base_url" >
+        </EditText>
+
+        <!-- Content Unit ID -->
+
+        <TextView
+            style="@style/param_key_txt"
+            android:text="@string/title_ad_cu" />
+
+        <EditText
+            android:id="@+id/param_ads_cu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            android:singleLine="true" >
+        </EditText>
+
+        <Button
+            android:id="@+id/add_param_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_add_param" />
+
+        <com.emediate.android.util.ParamListView
+            android:id="@+id/params_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+</ScrollView>

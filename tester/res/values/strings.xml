@@ -1,0 +1,32 @@
+<resources>
+
+    <string name="app_name">EmediateSDKTester</string>
+	<string name="empty"></string>
+	<string name="text_key">key</string>
+	<string name="text_value">value</string>
+	<string name="text_0">0</string>
+    <string name="title_activity_main">EmediateSDKTester</string>
+    
+    <string name="title_ad_name">Your Ad Name</string>
+    <string name="title_ad_type">Ad Specification</string>
+    <string name="title_ad_base_url">Base URL</string>
+    <string name="title_ad_cu">Content Unit ID</string>
+    
+    <string name="btn_add_param">Add More Parameter</string>
+    
+    <!-- AD TYPE SPECIFICATION -->
+    <string name="ad_type_mraid">MRAID</string>
+    <string name="ad_type_ormma">ORMMA</string>
+    <!-- Default Value -->
+    <string name="ad_default_base_url">http://stage.emediate.eu/eas</string>
+    
+    <!-- Menus -->
+    <string name="menu_create">Create Ads</string>
+    <string name="menu_delete">Delete Ads</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_cancel">Cancel</string>
+    
+    <!-- Dialog Msg -->
+    <string name="dialog_part_of_list_msg">Where do you want to insert your ads in the listView? \n\nEx:\n\'0\' = ListView Header; \n\'-1\' = ListView Footer;</string>
+
+</resources>

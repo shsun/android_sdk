@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="HandlerLeak">
+        <ignore path="src/com/emediate/view/MraidView.java" />
+    </issue>
+    <issue id="SuspiciousImport">
+        <ignore path="src/com/emediate/controller/MraidUtilityController.java" />
+        <ignore path="src/com/emediate/view/MraidView.java" />
+    </issue>
+</lint>

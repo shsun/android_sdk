@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+		style="@style/ads_list_section_txt"
+        android:text="@string/ad_type_mraid" />
+
+    <ListView
+        android:id="@+id/ads_mraid_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants" />
+
+    <TextView
+		style="@style/ads_list_section_txt"
+        android:text="@string/ad_type_ormma" />
+
+    <ListView
+        android:id="@+id/ads_ormma_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants" />
+
+</LinearLayout>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ads_sample_txt"
+    android:layout_height="@dimen/ads_sample_list_height"
+    style="@style/param_key_txt" >
+
+</TextView>
