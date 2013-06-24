@@ -20,6 +20,10 @@ us for help.
 ##sdk
 Source code for building the SDK. This is where the magic happens.
 
+##bin
+We have provided a prebuilt .jar-file for Java version 6. If you have
+an older version things might work, or they might not work. You must
+build your own .jar or we won't provide support.
 
 If you have any questions don't hestitate to contact us.
 
