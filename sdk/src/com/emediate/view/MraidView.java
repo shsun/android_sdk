@@ -505,7 +505,7 @@ public class MraidView extends WebView implements OnGlobalLayoutListener {
 		mTimeOut = new TimeOut();
 
 		try {
-			mLocalFilePath = mUtilityController.writeToDiskWrap(is, CURRENT_FILE, true, dataToInject,
+			mLocalFilePath = mUtilityController.writeToDiskWrap(this, is, CURRENT_FILE, true, dataToInject,
 					mBridgeScriptPath, mScriptPath);
 
 			url = "file://" + mLocalFilePath + CURRENT_FILE;
@@ -1492,6 +1492,20 @@ public class MraidView extends WebView implements OnGlobalLayoutListener {
 		mHandler.sendMessage(msg);
 	}
 
+	public float defaultWidth = 0, defaultHeight = 0;
+	public void setAdsDefaultWidth(float defaultWidth){
+		this.defaultWidth = defaultWidth;
+	}
+	public float getAdsDefaultWidth(){
+		return this.defaultWidth;
+	}
+	public void setAdsDefaultHeight(float defaultHeight){
+		this.defaultHeight = defaultHeight;
+	}
+	public float getAdsDefaultHeight(){
+		return this.defaultHeight;
+	}
+	
 	/**
 	 * Checks if is expanded.
 	 * 

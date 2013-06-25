@@ -17,15 +17,17 @@ import com.emediate.view.EmediateView;
 
 public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 
+	private boolean isLoaded = false;
 	private String finalUrl;
 	private Context mContext;
 	private EmediateView mEmediateView;
 	private String mUrl;
 	private static final String HTMLFileName = "EmediateAds.html";
 
-	public LoadHTMLAsynTask(Context context, String url, View mView) {
+	public LoadHTMLAsynTask(Context context, String url, View mView, boolean isLoaded) {
 		mContext = context;
 		mUrl = url;
+		this.isLoaded = isLoaded;
 		this.mEmediateView = (EmediateView) mView;
 	}
 
@@ -33,41 +35,53 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 	protected String doInBackground(Void... params) {
 		String url = mUrl;
 		Log.d("sdf", "adsurl:"+url);
-		if (URLUtil.isValidUrl(url)) {
-			InputStream is = null;
-			try {
-				URL u = new URL(url);
-				is = u.openStream();
+		if(isLoaded){
+			Log.d("sdf", "adsurl: isLoaded true");
+			try{
+				File writeFile = new File(mContext.getFilesDir(), HTMLFileName);
+				return finalUrl = "file://" + writeFile.getAbsolutePath();
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}else{
+		
+			Log.d("sdf", "adsurl: false");
+			if (URLUtil.isValidUrl(url)) {
+				InputStream is = null;
 				try {
-					File writeFile = new File(mContext.getFilesDir(), HTMLFileName);
-					byte buff[] = new byte[1024];
-					FileOutputStream out = new FileOutputStream(writeFile);
-
-					do {
-						int numread = is.read(buff);
-						if (numread <= 0)
-							break;
-						out.write(buff, 0, numread);
-
-					} while (true);
-
-					out.flush();
-					out.close();
-
-					finalUrl = "file://" + writeFile.getAbsolutePath();
-
+					URL u = new URL(url);
+					is = u.openStream();
+					try {
+						File writeFile = new File(mContext.getFilesDir(), HTMLFileName);
+						byte buff[] = new byte[1024];
+						FileOutputStream out = new FileOutputStream(writeFile);
+	
+						do {
+							int numread = is.read(buff);
+							if (numread <= 0)
+								break;
+							out.write(buff, 0, numread);
+	
+						} while (true);
+	
+						out.flush();
+						out.close();
+	
+						finalUrl = "file://" + writeFile.getAbsolutePath();
+	
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+					is.close();
+					return finalUrl;
+	
 				}
-				catch (Exception e) {
+				catch (MalformedURLException e) {
+				}
+				catch (IOException e) {
 					e.printStackTrace();
 				}
-				is.close();
-				return finalUrl;
-
-			}
-			catch (MalformedURLException e) {
-			}
-			catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 
@@ -79,6 +93,7 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 		super.onPostExecute(result);
 		if (result != null) {
 			mEmediateView.loadUrl(result);
+			mEmediateView.setAdsIsOrientationUpdated(false);
 		}
 	}
 }

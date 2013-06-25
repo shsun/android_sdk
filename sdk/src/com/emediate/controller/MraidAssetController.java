@@ -233,7 +233,7 @@ public class MraidAssetController extends MraidController {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public String writeToDiskWrap(InputStream in, String file,
+	public String writeToDiskWrap(MraidView view, InputStream in, String file,
 			boolean storeInHashedDirectory, String injection,
 			String bridgePath, String mraidPath) throws IllegalStateException,
 			IOException
@@ -278,15 +278,48 @@ public class MraidAssetController extends MraidController {
 				wholeHTMLBuffer = new StringBuffer(wholeHTML);
 				int start = wholeHTMLBuffer.indexOf("/mraid_bridge.js");
 				if (start <= 0) {
+				}else{
+					wholeHTMLBuffer.replace(start, start + "/mraid_bridge.js".length(), "file:/" + bridgePath);
+				}
+				start = wholeHTMLBuffer.indexOf("/mraid.js");
+				
+				if (start <= 0) {
+				}else{
+					wholeHTMLBuffer.replace(start, start + "/mraid.js".length(), "file:/" + mraidPath);
 				}
 				
-				wholeHTMLBuffer.replace(start, start + "/mraid_bridge.js".length(), "file:/" + bridgePath);
-				start = wholeHTMLBuffer.indexOf("/mraid.js");
-				if (start <= 0) {
+				// Retreive Ads Default Width and Height
+				int defaultStart = wholeHTML.indexOf("EmediateDefaultWidthAndHeightStart");
+				int defaultEnd = wholeHTML.indexOf("EmediateDefaultWidthAndHeightEnd");
+				
+				if (defaultStart <= 0 || defaultEnd <= 0) {
+				}else{
+					String defaultWidthAndHeight = wholeHTML.substring(defaultStart + "EmediateDefaultWidthAndHeightStart".length()+1, defaultEnd-1).trim();
+					float width = Float.parseFloat(defaultWidthAndHeight.split(",")[0]);
+					float height = Float.parseFloat(defaultWidthAndHeight.split(",")[1]);
+					
+					view.setAdsDefaultWidth(width);
+					view.setAdsDefaultHeight(height);
+					
 				}
-				wholeHTMLBuffer.replace(start, start + "/mraid.js".length(), "file:/" + mraidPath);
+				
+			}else{
+				// Retreive Ads Default Width and Height
+				int defaultStart = wholeHTML.indexOf("EmediateDefaultWidthAndHeightStart");
+				int defaultEnd = wholeHTML.indexOf("EmediateDefaultWidthAndHeightEnd");
+				
+				if (defaultStart <= 0 || defaultEnd <= 0) {
+				}else{
+					String defaultWidthAndHeight = wholeHTML.substring(defaultStart + "EmediateDefaultWidthAndHeightStart".length()+1, defaultEnd-1).trim();
+					float width = Float.parseFloat(defaultWidthAndHeight.split(",")[0]);
+					float height = Float.parseFloat(defaultWidthAndHeight.split(",")[1]);
+					
+					view.setAdsDefaultWidth(width);
+					view.setAdsDefaultHeight(height);
+					
+				}
 			}
-
+			
 			out = getAssetOutputString(file);
 			
 			if (!hasHTMLWrap) {

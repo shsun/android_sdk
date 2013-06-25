@@ -196,7 +196,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		if(parent.getId() == mAdsMraidListView.getId())
 			popChooseAdsTypeDialog(MainActivity.this, mAdsMraid.get(position).url, mAdsMraid.get(position).type);
 		else if(parent.getId() == mAdsOrmmaListView.getId())
-			popChooseAdsTypeDialog(MainActivity.this, "https://dl.dropbox.com/u/22406053/ormma-test-ad-level-1.html", mAdsOrmma.get(position).type); // For Testing
+			popChooseAdsTypeDialog(MainActivity.this, mAdsOrmma.get(position).url, mAdsOrmma.get(position).type);			
 	}
 
 }

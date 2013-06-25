@@ -172,8 +172,21 @@ public class EmediateView extends MraidView {
 	}
 
 	private void fetchCampaign() {
-		new LoadHTMLAsynTask(this.getContext(), mFinalUrl, this).execute();
+		new LoadHTMLAsynTask(this.getContext(), mFinalUrl, this, getAdsIsOrientationUpdated()).execute();
 	}
+	
+	private boolean isAdsOrientationUpdated = false;
+	/**
+	 * Set Ads Is Orientation Updated
+	 * @param isAdsOrientationUpdated
+	 */
+	public void setAdsIsOrientationUpdated(boolean isAdsOrientationUpdated){
+		this.isAdsOrientationUpdated = isAdsOrientationUpdated;
+	}
+	public boolean getAdsIsOrientationUpdated(){
+		return this.isAdsOrientationUpdated;
+	}
+	
 
 	/**
 	 * Get SharePreference

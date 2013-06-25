@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -187,7 +186,6 @@ public class Browser extends Activity {
 		CookieSyncManager.createInstance(this);
 		CookieSyncManager.getInstance().startSync();
 		webview.getSettings().setJavaScriptEnabled(true);
-		Log.d("DEBUG", "url: \"" + i.getStringExtra(URL_EXTRA) + "\"");
 		webview.loadUrl(i.getStringExtra(URL_EXTRA));
 		webview.setId(WebViewId);
 

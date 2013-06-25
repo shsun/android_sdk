@@ -356,9 +356,9 @@ public class MraidUtilityController extends MraidController {
 	 * @throws IllegalStateException the illegal state exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public String writeToDiskWrap(InputStream is, String currentFile, boolean storeInHashedDirectory, String injection, String bridgePath,
+	public String writeToDiskWrap(MraidView view, InputStream is, String currentFile, boolean storeInHashedDirectory, String injection, String bridgePath,
 			String mraidPath) throws IllegalStateException, IOException {
-		return mAssetController.writeToDiskWrap(is, currentFile, storeInHashedDirectory, injection, bridgePath, mraidPath);
+		return mAssetController.writeToDiskWrap(view, is, currentFile, storeInHashedDirectory, injection, bridgePath, mraidPath);
 	}
 
 	/**
