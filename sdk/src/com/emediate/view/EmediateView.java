@@ -175,7 +175,8 @@ public class EmediateView extends MraidView {
 		new LoadHTMLAsynTask(this.getContext(), mFinalUrl, this, getAdsIsOrientationUpdated()).execute();
 	}
 	
-	private boolean isAdsOrientationUpdated = false;
+	
+	private boolean isAdsOrientationUpdated;
 	/**
 	 * Set Ads Is Orientation Updated
 	 * @param isAdsOrientationUpdated
@@ -208,5 +209,5 @@ public class EmediateView extends MraidView {
 			startService();
 		}
 	}
-
+	
 }

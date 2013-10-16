@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.webkit.URLUtil;
 
@@ -34,9 +34,8 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 	@Override
 	protected String doInBackground(Void... params) {
 		String url = mUrl;
-		Log.d("sdf", "adsurl:"+url);
+	
 		if(isLoaded){
-			Log.d("sdf", "adsurl: isLoaded true");
 			try{
 				File writeFile = new File(mContext.getFilesDir(), HTMLFileName);
 				return finalUrl = "file://" + writeFile.getAbsolutePath();
@@ -45,12 +44,16 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 			}
 		}else{
 		
-			Log.d("sdf", "adsurl: false");
 			if (URLUtil.isValidUrl(url)) {
 				InputStream is = null;
 				try {
 					URL u = new URL(url);
-					is = u.openStream();
+					HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+				    conn.addRequestProperty("User-Agent", "Emediate SDK 1.0/Android");
+				    conn.setDoInput(true);
+				    conn.connect();
+					
+				    is = conn.getInputStream();
 					try {
 						File writeFile = new File(mContext.getFilesDir(), HTMLFileName);
 						byte buff[] = new byte[1024];

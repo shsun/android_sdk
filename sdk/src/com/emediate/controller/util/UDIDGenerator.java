@@ -1,19 +1,36 @@
 package com.emediate.controller.util;
 
-import android.os.Build;
-
-
+/**
+ * Class which generates a unique UDID which can be used as an user-id when
+ * making requests to the Ad-Service.
+ * 
+ * @author Fredrik Hyttnäs-Lenngren
+ * 
+ */
 public class UDIDGenerator {
 
-	public String generateUDID(){
-		String m_szDevIDShort = "35" + //we make this look like a valid IMEI
-	            Build.BOARD.length()%10+ Build.BRAND.length()%10 +
-	            Build.CPU_ABI.length()%10 + Build.DEVICE.length()%10 +
-	            Build.DISPLAY.length()%10 + Build.HOST.length()%10 +
-	            Build.ID.length()%10 + Build.MANUFACTURER.length()%10 +
-	            Build.MODEL.length()%10 + Build.PRODUCT.length()%10 +
-	            Build.TAGS.length()%10 + Build.TYPE.length()%10 +
-	            Build.USER.length()%10 ; //13 digits
-		return m_szDevIDShort;
-	}
+    /**
+     * Generate a new UDID
+     * 
+     * @return the udid
+     */
+    public final String generateUDID() {
+	final long unixTimestamp = System.currentTimeMillis() / 1000l;
+
+	return unixTimestamp + "" + getRandomNumber(100000000, 999999999);
+    }
+
+    /**
+     * Generate a random number between <code>min</code> (inclusive) and
+     * <code>max</code> (exclusive)
+     * 
+     * @param min
+     *            minimum (inclusive)
+     * @param max
+     *            maximum (exclusive)
+     * @return the random number
+     */
+    public int getRandomNumber(int min, int max) {
+	return (int) Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 }
