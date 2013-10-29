@@ -34,7 +34,6 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 
     @Override
     protected String doInBackground(Void... params) {
-	System.out.println("IS REUSING: " + mReuse);
 	if (mReuse) {
 	    try {
 		return getHTMLFilePath();
