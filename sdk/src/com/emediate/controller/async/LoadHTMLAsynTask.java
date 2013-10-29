@@ -12,77 +12,67 @@ import java.net.URLConnection;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.view.View;
 import android.webkit.URLUtil;
 
 import com.emediate.view.EmediateView;
 
 public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 
-    private boolean isLoaded = false;
-    private String finalUrl;
+    private boolean mReuse = false;
+
     private Context mContext;
     private EmediateView mEmediateView;
     private String mUrl;
     private static final String HTMLFileName = "EmediateAds.html";
 
-    public LoadHTMLAsynTask(Context context, String url, View mView, boolean isLoaded) {
+    public LoadHTMLAsynTask(Context context, String url, EmediateView mView, boolean shouldReuse) {
 	mContext = context;
 	mUrl = url;
-	this.isLoaded = isLoaded;
-	this.mEmediateView = (EmediateView) mView;
+	this.mReuse = shouldReuse;
+	this.mEmediateView = mView;
     }
 
     @Override
     protected String doInBackground(Void... params) {
-	String url = mUrl;
-
-	if (isLoaded) {
+	System.out.println("IS REUSING: " + mReuse);
+	if (mReuse) {
 	    try {
-		File writeFile = new File(mContext.getFilesDir(), HTMLFileName);
-		return finalUrl = "file://" + writeFile.getAbsolutePath();
+		return getHTMLFilePath();
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }
 	} else {
-
-	    if (URLUtil.isValidUrl(url)) {
-		InputStream is = null;
+	    if (URLUtil.isValidUrl(mUrl)) {
 		try {
-		    URL u = new URL(url);
-		    HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+		    final HttpURLConnection conn = (HttpURLConnection) new URL(mUrl).openConnection();
 		    setUserAgent(conn);
 		    conn.setDoInput(true);
 		    conn.connect();
 
-		    is = conn.getInputStream();
-		    try {
-			File writeFile = new File(mContext.getFilesDir(), HTMLFileName);
-			byte buff[] = new byte[1024];
-			FileOutputStream out = new FileOutputStream(writeFile);
+		    final InputStream input = conn.getInputStream();
+		    final File writeFile = getHTMLFile();
+		    final byte buff[] = new byte[1024];
+		    final FileOutputStream out = new FileOutputStream(writeFile);
 
-			do {
-			    int numread = is.read(buff);
-			    if (numread <= 0)
-				break;
-			    out.write(buff, 0, numread);
+		    do {
+			int numread = input.read(buff);
+			if (numread <= 0)
+			    break;
+			out.write(buff, 0, numread);
 
-			} while (true);
+		    } while (true);
 
-			out.flush();
-			out.close();
+		    out.flush();
+		    out.close();
+		    input.close();
 
-			finalUrl = "file://" + writeFile.getAbsolutePath();
-
-		    } catch (Exception e) {
-			e.printStackTrace();
-		    }
-		    is.close();
-		    return finalUrl;
-
+		    return getHTMLFilePath();
 		} catch (MalformedURLException e) {
+		    e.printStackTrace();
+		    return null;
 		} catch (IOException e) {
 		    e.printStackTrace();
+		    return null;
 		}
 	    }
 	}
@@ -90,12 +80,25 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 	return null;
     }
 
+    /**
+     * Return a file which represents the last fetched ad.
+     */
+    protected File getHTMLFile() {
+	return new File(mContext.getFilesDir(), HTMLFileName);
+    }
+
+    /**
+     * Return the path the the file which represents the last fetched ad.
+     */
+    protected String getHTMLFilePath() {
+	return "file://" + getHTMLFile();
+    }
+
     @Override
     protected void onPostExecute(String result) {
 	super.onPostExecute(result);
 	if (result != null) {
 	    mEmediateView.loadUrl(result);
-	    mEmediateView.setAdsIsOrientationUpdated(false);
 	}
     }
 
@@ -111,7 +114,7 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
 	userAgentBuilder.append("Emediate SDK 1.0/");
 	userAgentBuilder.append("Android " + Build.VERSION.RELEASE + ";");
 	userAgentBuilder.append(Build.MODEL + " Build/");
-	
+
 	conn.addRequestProperty("User-Agent", userAgentBuilder.toString());
     }
 }
