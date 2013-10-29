@@ -1,12 +1,14 @@
 package com.emediate.view;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.emediate.controller.MraidLocationController;
@@ -41,43 +43,60 @@ public class EmediateView extends MraidView {
     /** Preference */
     private static final String SHARE_PREF_NAME = "EmediateSDK";
     /** RefreshRate */
-    private int mRefreshRate = 60; // 60 *1000 as default
+    private long mRefreshRate = 60000; // One minute
     /** If the View is being restored */
     private boolean mIsRestoring = false;
 
     /** Timer Runner */
-    private boolean run = false; // Set Default State of the Runnable Task as
-				 // false
+    private boolean run = false; // Set Default State of the Runnable Task as false
     private Handler handler = new Handler();
     private Runnable task = new Runnable() {
 
 	public void run() {
 	    if (run) {
-		handler.postDelayed(this, mRefreshRate * 1000);
+		handler.postDelayed(this, mRefreshRate);
 		fetchCampaign();
 	    }
 	}
     };
 
     /**
-     * Set AdsRefresh Rate The Unit of Rate is seconds, if refreshRate is 10, it
-     * is acturally mean 10*1000 milliseconds = 10 seconds ; Default RefreshRate
-     * is 60*1000
+     * Set the refresh rate of ads in {@link TimeUnit#SECONDS}. A refresh rate
+     * lower than 0 means no refresh after inital fetch.
      * 
      * @param refreshRate
+     *            the refresh rate
      */
-    public void setAdsRefreshRate(int adsRefreshRate) {
-	mRefreshRate = adsRefreshRate;
+    public void setAdsRefreshRate(int refreshRate) {
+	mRefreshRate = TimeUnit.SECONDS.toMillis(refreshRate);
     }
 
+    /**
+     * Manualy start the ad-service, only call this if you manualy called
+     * {@link #stopService()}
+     * 
+     * @throws IllegalStateException
+     *             if the ad-view has not yet been setup
+     */
     public void startService() {
+	if (TextUtils.isEmpty(mFinalUrl))
+	    throw new IllegalStateException("There are no campaign values");
+
 	stopService();
 	run = true;
-	handler.postDelayed(task, mRefreshRate * 1000);
+
+	if (mRefreshRate > 0)
+	    handler.postDelayed(task, mRefreshRate);
     }
 
+    /**
+     * Manualy stop the ad campaign service. No new ads will be delivered until
+     * {@link #startService()}, {@link #fetchCampaignNormal()} or
+     * {@link #fetchCampaignByFinalUrl(String)} is called.
+     */
     public void stopService() {
 	run = false;
+	handler.removeCallbacksAndMessages(null);
     }
 
     public EmediateView(Context context) {
@@ -184,8 +203,7 @@ public class EmediateView extends MraidView {
      * adsURL.
      */
     public void fetchCampaignNormal() {
-	mFinalUrl = (getAdsBaseUrl() + "?" + getAllParams() + appendDeviceUDIDToURL() + appendLocationToURL())
-		.trim();
+	mFinalUrl = (getAdsBaseUrl() + "?" + getAllParams() + appendDeviceUDIDToURL() + appendLocationToURL()).trim();
 	fetchCampaign();
 	startService();
     }
@@ -245,5 +263,4 @@ public class EmediateView extends MraidView {
 	    startService();
 	}
     }
-
 }
