@@ -16,7 +16,7 @@ import android.webkit.URLUtil;
 
 import com.emediate.view.EmediateView;
 
-public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
+public class LoadHTMLAsyncTask extends AsyncTask<Void, String, String> {
 
     private boolean mReuse = false;
 
@@ -25,7 +25,7 @@ public class LoadHTMLAsynTask extends AsyncTask<Void, String, String> {
     private String mUrl;
     private static final String HTMLFileName = "EmediateAds.html";
 
-    public LoadHTMLAsynTask(Context context, String url, EmediateView mView, boolean shouldReuse) {
+    public LoadHTMLAsyncTask(Context context, String url, EmediateView mView, boolean shouldReuse) {
 	mContext = context;
 	mUrl = url;
 	this.mReuse = shouldReuse;

@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.emediate.controller.MraidLocationController;
-import com.emediate.controller.async.LoadHTMLAsynTask;
+import com.emediate.controller.async.LoadHTMLAsyncTask;
 import com.emediate.controller.model.Param;
 import com.emediate.controller.util.UDIDGenerator;
 
@@ -213,7 +213,7 @@ public class EmediateView extends MraidView {
      * should be reused.
      */
     private void fetchCampaign() {
-	new LoadHTMLAsynTask(this.getContext(), mFinalUrl, this, mIsRestoring).execute();
+	new LoadHTMLAsyncTask(this.getContext(), mFinalUrl, this, mIsRestoring).execute();
 	mIsRestoring = false; // Reset
     }
 
