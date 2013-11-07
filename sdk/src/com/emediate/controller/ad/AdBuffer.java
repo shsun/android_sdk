@@ -1,6 +1,6 @@
 /*
  * Created by Fredrik Hyttnäs-Lenngren on 7 nov 2013
- * Copyright (c) 2012 Mobile Interaction. All rights reserved.
+ * Copyright (c) 2013 Emediate. All rights reserved.
  */
 package com.emediate.controller.ad;
 
