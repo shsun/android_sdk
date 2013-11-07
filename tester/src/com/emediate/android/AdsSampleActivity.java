@@ -60,6 +60,7 @@ public class AdsSampleActivity extends Activity {
 
 	    // Fetch Campaign Ads
 	    mEmediateView.setAdsRefreshRate(60);
+	    mEmediateView.setAdsBufferLimit(2);
 	    mEmediateView.fetchCampaignByFinalUrl(adsUrl);
 	}
 	else if (adsPlaceType.equals(ADS_PLACE_TYPE_LISTVIEW)) {

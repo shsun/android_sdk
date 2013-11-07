@@ -12,7 +12,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import com.emediate.controller.MraidLocationController;
-import com.emediate.controller.async.LoadHTMLAsyncTask;
+import com.emediate.controller.ad.AdBuffer;
+import com.emediate.controller.ad.AsyncAdTask;
 import com.emediate.controller.model.Param;
 import com.emediate.controller.util.UDIDGenerator;
 
@@ -46,9 +47,14 @@ public class EmediateView extends MraidView {
     private long mRefreshRate = 60000; // One minute
     /** If the View is being restored */
     private boolean mIsRestoring = false;
+    /** Buffer which holds temporary ads */
+    private AdBuffer mBuffer;
+    /** Number of ads which should exist within the buffer */
+    private int mNumAdsToBuffer = 1;
 
     /** Timer Runner */
-    private boolean run = false; // Set Default State of the Runnable Task as false
+    private boolean run = false; // Set Default State of the Runnable Task as
+				 // false
     private Handler handler = new Handler();
     private Runnable task = new Runnable() {
 
@@ -60,15 +66,130 @@ public class EmediateView extends MraidView {
 	}
     };
 
+    public EmediateView(Context context, AttributeSet set) {
+	super(context, set);
+	hasUDID();
+
+	mLocationController = new MraidLocationController(this, context);
+	mLocationController.startLocationListener();
+    }
+
+    public EmediateView(Context context) {
+	this(context, null);
+    }
+
     /**
-     * Set the refresh rate of ads in {@link TimeUnit#SECONDS}. A refresh rate
-     * lower than 0 means no refresh after inital fetch.
-     * 
-     * @param refreshRate
-     *            the refresh rate
+     * Check if the UDID has already been created
      */
-    public void setAdsRefreshRate(int refreshRate) {
-	mRefreshRate = TimeUnit.SECONDS.toMillis(refreshRate);
+    protected void hasUDID() {
+	String UDID = getApplicationPreferences().getString(UDID_KEY, null);
+	if (UDID == null) {
+	    UDID = new UDIDGenerator().generateUDID();
+	    getApplicationPreferences().edit().putString(UDID_KEY, UDID).commit();
+	}
+	mUDID = UDID;
+    }
+
+    /**
+     * Get SharePreference
+     * 
+     * @return
+     */
+    private SharedPreferences getApplicationPreferences() {
+	return this.getContext().getSharedPreferences(SHARE_PREF_NAME, Context.MODE_PRIVATE);
+    }
+    
+    /**
+     * Same as calling <code>fetchCampaignNormal(<em>false</em>)</code>
+     * 
+     * @see #fetchCampaignNormal(boolean)
+     */
+    public final void fetchCampaignNormal() {
+	fetchCampaignNormal(false);
+    }
+
+    /**
+     * Same as calling <code>fetchCampaignByFinalUrl(url, <em>false</em>)</code>
+     * 
+     * @see #fetchCampaignByFinalUrl(String, boolean)
+     */
+    public final void fetchCampaignByFinalUrl(String adsUrl) {
+	fetchCampaignByFinalUrl(adsUrl, false);
+    }
+    
+    /**
+     * API: Fetch Campaign Normal Developer need to Fill in BaseUrl, Params
+     * firstly And SDK will reassemble BaseUrl and Params and generate the final
+     * adsURL.
+     * 
+     * @param clearBuffer
+     *            true to clear the buffer before starting campaign
+     * 
+     */
+    public final void fetchCampaignNormal(boolean clearBuffer) {
+	fetchCampaignByFinalUrl(getAdsBaseUrl() + "?" + getAllParams(), clearBuffer);
+    }
+
+
+
+    /**
+     * API: Fetch Campaign Developer only need to supply the full ads Url as
+     * parameter eg. adsUrl = "http://stage.emediate.eu/eas?cu=512&kw1=expand";
+     * 
+     * @param adsUrl
+     *            final ad-campaign url
+     * @param clearBuffer
+     *            true if underlaying ad buffer should be cleared before
+     *            campaign is started
+     */
+    public void fetchCampaignByFinalUrl(String adsUrl, boolean clearBuffer) {
+	mFinalUrl = (adsUrl + appendDeviceUDIDToURL() + appendLocationToURL()).trim();
+	mBuffer = new AdBuffer(getContext(), adsUrl);
+	
+	if (clearBuffer) {
+	    mBuffer.clear();
+	}
+	
+	fetchCampaign();
+	startService();
+    }
+
+    /**
+     * GetDevice UDID and Append after ADS url as parameter
+     * 
+     * @return
+     */
+    public String appendDeviceUDIDToURL() {
+	return "&" + UDID_KEY + "=" + mUDID;
+    }
+
+    /**
+     * Get Device CurrentLocation and Append after ADS url as parameter
+     * 
+     * @return
+     */
+    public String appendLocationToURL() {
+	return mLocationController.getLocationParams();
+    }
+
+    /**
+     * Fetch the current campaign based on the final url and if previous advert
+     * should be reused.
+     */
+    private void fetchCampaign() {
+	new AsyncAdTask(this, mBuffer, mFinalUrl, mIsRestoring).execute(mNumAdsToBuffer);
+	mIsRestoring = false; // Reset
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+	super.onDetachedFromWindow();
+
+	if (this.getState().equals("default")) {
+	    stopService();
+	} else {
+	    startService();
+	}
     }
 
     /**
@@ -99,31 +220,6 @@ public class EmediateView extends MraidView {
 	handler.removeCallbacksAndMessages(null);
     }
 
-    public EmediateView(Context context) {
-	super(context);
-	hasUDID();
-
-	mLocationController = new MraidLocationController(this, context);
-	mLocationController.startLocationListener();
-    }
-
-    public EmediateView(Context context, AttributeSet set) {
-	super(context, set);
-	hasUDID();
-	mLocationController = new MraidLocationController(this, context);
-	mLocationController.startLocationListener();
-
-    }
-
-    /**
-     * Set Ads Base Url
-     * 
-     * @param adsBaseUrl
-     */
-    public void setAdsBaseUrl(String adsBaseUrl) {
-	mAdsBaseUrl = adsBaseUrl;
-    }
-
     /**
      * Get Ads Base url
      * 
@@ -131,15 +227,6 @@ public class EmediateView extends MraidView {
      */
     public String getAdsBaseUrl() {
 	return mAdsBaseUrl;
-    }
-
-    /**
-     * Set Ads parameters
-     * 
-     * @param adsParams
-     */
-    public void setAdsParams(ArrayList<Param> adsParams) {
-	mAdsParams = adsParams;
     }
 
     /**
@@ -156,65 +243,42 @@ public class EmediateView extends MraidView {
     }
 
     /**
-     * GetDevice UDID and Append after ADS url as parameter
+     * Set the refresh rate of ads in {@link TimeUnit#SECONDS}. A refresh rate
+     * lower than 0 means no refresh after inital fetch.
      * 
-     * @return
+     * @param refreshRate
+     *            the refresh rate
      */
-    public String appendDeviceUDIDToURL() {
-	return "&" + UDID_KEY + "=" + mUDID;
+    public void setAdsRefreshRate(int refreshRate) {
+	mRefreshRate = TimeUnit.SECONDS.toMillis(refreshRate);
     }
 
     /**
-     * Get Device CurrentLocation and Append after ADS url as parameter
+     * Set the number of ads which should be keept buffered (inclusive).
      * 
-     * @return
+     * @param buffer
+     *            number of ads to buffer, or <= 1 to prevent buffering of ads
      */
-    public String appendLocationToURL() {
-	return mLocationController.getLocationParams();
+    public void setAdsBufferLimit(int buffer) {
+	mNumAdsToBuffer = Math.max(1, buffer);
     }
 
     /**
-     * Check if the UDID has already been created
-     */
-    protected void hasUDID() {
-	String UDID = getApplicationPreferences().getString(UDID_KEY, null);
-	if (UDID == null) {
-	    UDID = new UDIDGenerator().generateUDID();
-	    getApplicationPreferences().edit().putString(UDID_KEY, UDID).commit();
-	}
-	mUDID = UDID;
-    }
-
-    /**
-     * API: Fetch Campaign Developer only need to supply the full ads Url as
-     * parameter eg. adsUrl = "http://stage.emediate.eu/eas?cu=512&kw1=expand";
+     * Set Ads Base Url
      * 
-     * @param adsUrl
+     * @param adsBaseUrl
      */
-    public void fetchCampaignByFinalUrl(String adsUrl) {
-	mFinalUrl = (adsUrl + appendDeviceUDIDToURL() + appendLocationToURL()).trim();
-	fetchCampaign();
-	startService();
+    public void setAdsBaseUrl(String adsBaseUrl) {
+	mAdsBaseUrl = adsBaseUrl;
     }
 
     /**
-     * API: Fetch Campaign Normal Developer need to Fill in BaseUrl, Params
-     * firstly And SDK will reassemble BaseUrl and Params and generate the final
-     * adsURL.
+     * Set Ads parameters
+     * 
+     * @param adsParams
      */
-    public void fetchCampaignNormal() {
-	mFinalUrl = (getAdsBaseUrl() + "?" + getAllParams() + appendDeviceUDIDToURL() + appendLocationToURL()).trim();
-	fetchCampaign();
-	startService();
-    }
-
-    /**
-     * Fetch the current campaign based on the final url and if previous advert
-     * should be reused.
-     */
-    private void fetchCampaign() {
-	new LoadHTMLAsyncTask(this.getContext(), mFinalUrl, this, mIsRestoring).execute();
-	mIsRestoring = false; // Reset
+    public void setAdsParams(ArrayList<Param> adsParams) {
+	mAdsParams = adsParams;
     }
 
     @Override
@@ -242,25 +306,5 @@ public class EmediateView extends MraidView {
      */
     public boolean isRestoringState() {
 	return mIsRestoring;
-    }
-
-    /**
-     * Get SharePreference
-     * 
-     * @return
-     */
-    private SharedPreferences getApplicationPreferences() {
-	return this.getContext().getSharedPreferences(SHARE_PREF_NAME, Context.MODE_PRIVATE);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-	super.onDetachedFromWindow();
-
-	if (this.getState().equals("default")) {
-	    stopService();
-	} else {
-	    startService();
-	}
     }
 }
