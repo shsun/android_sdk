@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 
 import com.emediate.view.EmediateView;
 
@@ -99,6 +100,7 @@ public class AsyncAdTask extends AsyncTask<Integer, Void, File> {
 	userAgentBuilder.append("Emediate SDK 1.0/");
 	userAgentBuilder.append("Android " + Build.VERSION.RELEASE + ";");
 	userAgentBuilder.append(Build.MODEL + " Build/");
+	userAgentBuilder.append(Locale.getDefault() + "/");
 
 	conn.addRequestProperty("User-Agent", userAgentBuilder.toString());
     }
