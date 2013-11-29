@@ -39,6 +39,8 @@ public class EmediateView extends MraidView {
     /** Device_ID */
     private String mUDID;
     private static final String UDID_KEY = "eas_uid";
+    /* Ads url exclusive UDID and Location*/
+    private String mAdsUrl = "";
     /** Final Url */
     private String mFinalUrl = "";
     /** Preference */
@@ -65,6 +67,8 @@ public class EmediateView extends MraidView {
 	    }
 	}
     };
+
+    
 
     public EmediateView(Context context, AttributeSet set) {
 	super(context, set);
@@ -143,7 +147,9 @@ public class EmediateView extends MraidView {
      *            campaign is started
      */
     public void fetchCampaignByFinalUrl(String adsUrl, boolean clearBuffer) {
+	mAdsUrl = adsUrl;
 	mFinalUrl = (adsUrl + appendDeviceUDIDToURL() + appendLocationToURL()).trim();
+	
 	mBuffer = new AdBuffer(getContext(), adsUrl);
 	
 	if (clearBuffer) {
@@ -286,7 +292,11 @@ public class EmediateView extends MraidView {
 	final Bundle bundle = new Bundle();
 	bundle.putParcelable("instanceState", super.onSaveInstanceState());
 	bundle.putBoolean("restore", true);
-
+	bundle.putParcelableArrayList("params", mAdsParams);
+	bundle.putString("url", mAdsUrl);
+	bundle.putInt("buffer", mNumAdsToBuffer);
+	bundle.putLong("refresh", mRefreshRate);
+	
 	return bundle;
     }
 
@@ -295,10 +305,20 @@ public class EmediateView extends MraidView {
 	if (state instanceof Bundle) {
 	    final Bundle bundle = (Bundle) state;
 	    mIsRestoring = bundle.getBoolean("restore");
+	    mAdsParams = bundle.getParcelableArrayList("params");
+	    mRefreshRate = bundle.getLong("refresh");
+	    mNumAdsToBuffer = bundle.getInt("buffer");
+	    mAdsUrl = bundle.getString("url");
+    
 	    super.onRestoreInstanceState(bundle.getParcelable("instanceState"));
 	} else {
 	    super.onRestoreInstanceState(state);
 	}
+	
+	if(mIsRestoring) {
+	    fetchCampaignByFinalUrl(mAdsUrl);
+	}
+	
     }
 
     /**
