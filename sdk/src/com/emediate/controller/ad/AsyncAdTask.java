@@ -4,18 +4,21 @@
  */
 package com.emediate.controller.ad;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
 
-import com.emediate.view.EmediateView;
-
 import android.os.AsyncTask;
 import android.os.Build;
+
+import com.emediate.view.EmediateView;
 
 /**
  * {@link AsyncTask} for fetching and serving ads to an {@link EmediateView}
@@ -23,7 +26,7 @@ import android.os.Build;
  * @author Fredrik Hyttnäs-Lenngren
  * 
  */
-public class AsyncAdTask extends AsyncTask<Integer, Void, File> {
+public class AsyncAdTask extends AsyncTask<Integer, Void, String> {
 
     private final EmediateView mView;
     private final AdBuffer mAdCache;
@@ -50,18 +53,18 @@ public class AsyncAdTask extends AsyncTask<Integer, Void, File> {
     }
 
     @Override
-    protected File doInBackground(Integer... count) {
+    protected String doInBackground(Integer... count) {
 	if (mReuseOld) {
 	    final File previousAd = mAdCache.peep();
 	    if (previousAd.exists()) {
-		return previousAd;
+		return toString(previousAd);
 	    }
 	}
 
 	// There was nothing to reuse, or not reusing
 	try {
 	    if (!mAdCache.isEmpty()) {
-		return mAdCache.pop();
+		return toString(mAdCache.pop());
 	    }
 	    // The cache was empty, fetch more
 	    for (int i = 0; i < count[0]; i++) {
@@ -74,17 +77,49 @@ public class AsyncAdTask extends AsyncTask<Integer, Void, File> {
 		mAdCache.put(input);
 		input.close();
 	    }
-	    return mAdCache.pop();
+	    return toString(mAdCache.pop());
 	} catch (IOException e) {
 	    e.printStackTrace();
-	    return mAdCache.peep(); // Returned the last servered if possible
+	    return toString(mAdCache.peep()); // Returned the last servered if possible
+	}
+    }
+
+    /**
+     * Converts the contents of the given File to a human-readable string
+     * 
+     * @param file
+     *            the file to convert
+     * @return the contents of the file, or null if unable to convert the file
+     */
+    protected String toString(File file) {
+
+	BufferedReader reader = null;
+	try {
+	    final StringBuilder builder = new StringBuilder();
+	    reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+
+	    String line;
+	    while ((line = reader.readLine()) != null) {
+		builder.append(line);
+	    }
+
+	    return builder.toString();
+	} catch (IOException e) {
+	    return null;
+	} finally {
+	    try {
+		if (reader != null)
+		    reader.close();
+	    } catch (IOException e) {
+		// Ignore
+	    }
 	}
     }
 
     @Override
-    protected void onPostExecute(File result) {
+    protected void onPostExecute(String result) {
 	if (result != null) {
-	    mView.loadUrl("file://" + result);
+	    mView.loadDataWithBaseURL(null, result, "text/html", "utf-8", null);
 	}
     }
 
