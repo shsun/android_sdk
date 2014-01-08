@@ -75,7 +75,6 @@ public class EmediateView extends MraidView {
 	hasUDID();
 
 	mLocationController = new MraidLocationController(this, context);
-	mLocationController.startLocationListener();
     }
 
     public EmediateView(Context context) {
@@ -212,6 +211,8 @@ public class EmediateView extends MraidView {
 	stopService();
 	run = true;
 
+	mLocationController.startLocationListener();
+	
 	if (mRefreshRate > 0)
 	    handler.postDelayed(task, mRefreshRate);
     }
@@ -224,6 +225,7 @@ public class EmediateView extends MraidView {
     public void stopService() {
 	run = false;
 	handler.removeCallbacksAndMessages(null);
+	mLocationController.stopLocationListener();
     }
 
     /**
